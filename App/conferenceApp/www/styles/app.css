@@ -1,0 +1,112 @@
+img#conference-header {
+    max-width: 100%;
+}
+
+#search-criteria {
+    -webkit-appearance: none;
+    border: none;
+    font-size: 12pt;
+    margin-left: -10px;
+    background-color: transparent;
+}
+
+#search-button {
+    float: right;
+}
+
+li.li-heading {
+    text-align: center;
+    font-variant: small-caps;
+}
+
+p#conference-welcome {
+    line-height: 1.1em;
+}
+
+div.vendor-list-name {
+    line-height: 1.1em;
+}
+
+div.vendor-list-booth {
+    float: right;
+    font-size: 10pt;
+    font-style: italic;
+    font-weight: bold;
+}
+
+span.vendor-list-taglag {
+    font-size: 10pt;
+    font-style: italic;
+}
+
+a.vendor-list-url {
+    font-size: 10pt;
+}
+
+.vendor-item-list a.vendor-details-link {
+    display: block;
+    text-decoration: none;
+    overflow: hidden;
+}
+
+.button-right {
+    float: right;
+}
+
+.button-left {
+    float: left;
+}
+
+div#conference-news-header {
+    width: 100%;
+    background-color: #000;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+}
+
+div.news-date {
+    float: right;
+    font-size: 10pt;
+    background-color: #000;
+    color: #fff;
+    text-align: center;
+    border: 1px solid;
+    border-radius: 10px;
+    width: 100px;
+}
+
+div.news-content {
+    clear: right;
+    font-size: 10pt;
+    line-height: 1.1em;
+}
+
+div#vendor-detail-div {
+    padding: 5px;
+}
+
+div#vendor-detail-name {
+    font-size: 14pt;
+    font-weight: bold;
+    line-height: 1.3em;
+}
+
+div#vendor-detail-tagline {
+    font-variant: italic;
+    line-height: 1.3em;
+}
+
+div#vendor-detail-url {
+    line-height: 1.3em;
+}
+
+div#vendor-detail-about {
+    margin-top: 15px;
+    margin-bottom: 10px;
+    line-height: 1em;
+}
+
+div#vendor-detail-about p {
+    margin-bottom: 5px;
+}

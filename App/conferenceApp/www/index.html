@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title></title>
+  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no;" />
+	<meta charset="utf-8">
+        
+    <link rel="stylesheet" href="styles/kendo.mobile.all.min.css" type="text/css" />
+    <link rel="stylesheet" href="styles/app.css" type="text/css" />
+
+    <script type="text/javascript" charset="utf-8" src="phonegap-1.4.1.js"></script>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/jquery.json.min.js"></script>
+    <script type="text/javascript" src="js/kendo.all.min.js"></script>
+    <!-- Uncomment the following for weinre debugging -->
+    <!--<script type="text/javascript" src="http://localhost:8080/target/target-script-min.js#anonymous"></script>-->
+    <script type="text/javascript">
+
+	// If you want to prevent dragging, uncomment this section
+	/*
+	function preventBehavior(e) 
+	{ 
+      e.preventDefault(); 
+    };
+	document.addEventListener("touchmove", preventBehavior, false);
+	*/
+	
+	/* If you are supporting your own protocol, the var invokeString will contain any arguments to the app launch.
+	see http://iphonedevelopertips.com/cocoa/launching-your-own-application-via-a-custom-url-scheme.html
+	for more details -jm */
+	/*
+	function handleOpenURL(url)
+	{
+		// TODO: do something with the url passed in.
+	}
+	*/
+	
+	function onBodyLoad()
+	{		
+		document.addEventListener("deviceready", onDeviceReady, false);
+	}
+	
+	/* When this function is called, PhoneGap has been initialized and is ready to roll */
+	/* If you are supporting your own protocol, the var invokeString will contain any arguments to the app launch.
+	see http://iphonedevelopertips.com/cocoa/launching-your-own-application-via-a-custom-url-scheme.html
+	for more details -jm */
+	function onDeviceReady()
+	{
+		// do your thing!
+	}
+    
+    </script>
+  </head>
+  <body onload="onBodyLoad()">
+	<div data-role="view" data-layout="app" data-title="Web 2.0 Expo" data-init="getConferenceNews" id="main-page">
+        <p id="conference-welcome">Welcome to this years web 2.0 expo and conference.  We hope you enjoy the conference and 
+        the great speaker lineup we have in store.</p>
+        <div id="conference-news-header">Conference News</div>
+        <ul id="conference-news"></ul>
+    </div>
+      
+    <div data-role="view" data-layout="app" data-title="Vendors" id="vendors">
+        <ul data-role="listview" data-style="inset">
+            <li class="li-heading">Search Vendors</li>
+            <li>
+                <input type="text" name="search-criteria" id="search-criteria" placeholder="enter search criteria" />
+                <a href="#" data-role="button" id="search-button">Search</a>
+            </li>
+        </ul>
+        
+        <ul data-role="listview" data-style="inset">
+            <li class="li-heading">View Vendors</li>
+            <li><a href="#valpha">Alphahetically</a></li>
+            <li><a href="#vcategory">By Category</a></li>
+        </ul>
+    </div>
+      
+    <div class="back-button-show" data-role="view" data-layout="app" data-init="getVendorsAlpha" data-title="" id="valpha">
+        <ul id="vendors-alpha-list" class="vendor-item-list"></ul>
+    </div>
+      
+    <div class="back-button-show" data-role="view" data-layout="app" data-init="getVendorsCategory" data-title="" id="vcategory">
+        <ul id="vendors-category-list" class="vendor-item-list"></ul>
+    </div>
+      
+    <div class="back-button-show" data-role="view" data-layout="app" data-show="getVendorDetails" data-title="" id="vendor-details">
+        <div id="vendor-detail-div">
+            <div id="vendor-detail-name" data-bind="text: name"></div>
+            <div id="vendor-detail-tagline" data-bind="text: tag_line"></div>
+            <div id="vendor-detail-url" data-bind="text: url"></div>
+            <div id="vendor-detail-about" data-bind="text: about"></div>
+            <a class="button-left" data-role="button" data-click="addToFavoritesClick">Add to Favorites</a>
+            <a class="button-right" data-role="button" data-click="addToContacts">Add to Contacts</a>
+        </div>
+    </div>
+    
+    <div data-role="view" data-layout="app" data-title="Saved Vendors" data-show="getSavedVendors" id="favorite-vendors">
+        <ul id="saved-vendors-list" class="vendor-item-list"></ul>
+    </div>
+      
+    <div data-role="layout" data-id="app" data-show="layoutShowInit">
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-role="backbutton" data-align="left">Back</a>
+                <span data-role="view-title">Demo Conference</span>
+            </div>
+        </header>
+        
+        <footer data-role="footer">
+            <div data-role="tabstrip">
+                <a href="#main-page" data-icon="info">Info</a>
+                <a href="#vendors" data-icon="organize">Vendors</a>
+                <a href="#favorite-vendors" data-icon="favorites">Saved Vendors</a>
+            </div>
+        </footer>
+    </div>
+      
+    <script type="text/x-kendo-template" id="conference-news-template">
+        <div class="news-date">${ created_date }</div>
+        <div class="news-content">${ content }</div>
+    </script>
+      
+    <script type="text/x-kendo-template" id="vendors-all-list">
+        <a class="vendor-details-link" data-role="listview-link" href="\#vendor-details?id=${id}">
+            <div class="vendor-list-booth">${ booth_number }</div>
+            ${ name }<br />
+            <span class="vendor-list-taglag">${ tag_line }</span><br />
+        </a>
+    </script>
+      
+    <script>
+        var app = new kendo.mobile.Application($(document).body, { 
+                       transition: "slide"
+                   });
+        
+        var vendorDetailVM = {};
+        
+        var vendorAlphaDS = kendo.data.DataSource.create({
+                                     transport: {
+                                             read: {
+                                                 url: "http://kurogo.appcreatorpro.com/vendors/all",
+                                                 dataType: "json"
+                                             }
+                                     },
+                                     group: "name_alpha"
+                             });
+        // always read this dataset since we use it for pulling all the data
+        vendorAlphaDS.read();
+        
+        var vendorCategoryDS = kendo.data.DataSource.create({
+                                     transport: {
+                                            read: {
+                                                url: "http://kurogo.appcreatorpro.com/vendors/all",
+                                                dataType: "json"
+                                            }
+                                     },
+                                     group: "category"
+                            });
+        
+        var layoutShowInit = function(e) {
+            // hide the back button
+            var viewClass = e.view.element.attr('class');
+            
+            e.layout.header.find('.nav-button').css({ visibility: viewClass.indexOf('back-button-show') != -1 ? "visible" : "hidden" });
+        };
+        
+        var getConferenceNews = function() {
+            $('#conference-news').kendoMobileListView({
+                                      dataSource: kendo.data.DataSource.create({
+                                                    transport: {
+                                                       read: { 
+                                                           url: "http://kurogo.appcreatorpro.com/news/all",
+                                                           dataType: "json"
+                                                       }
+                                                    }
+                                      }),
+                                      template: $('#conference-news-template').html()
+            });
+        };
+        
+        var getVendorsAlpha = function() {
+            $('#vendors-alpha-list').kendoMobileListView({
+                                        dataSource: vendorAlphaDS,
+                                        template: $('#vendors-all-list').html()
+            });
+        };
+        
+        var getVendorsCategory = function() {
+            $('#vendors-category-list').kendoMobileListView({
+                                         dataSource: vendorCategoryDS,
+                                         template: $('#vendors-all-list').html()
+            });
+        };
+        
+        var getSavedVendors = function() {
+            var db;
+            
+            db = window.openDatabase("conference", "1.0", "Conference DB", 1000000);
+            
+            db.transaction(function(tx) {
+                               ensureTableExists(tx);
+                               tx.executeSql("SELECT * FROM Favorites", 
+                                         [], 
+                                         displayFavorites,
+                                         function(err) {
+                                            alert("Error reading Favorites database");
+                                         }
+                                );
+                           }, function(error) { alert("Error: " + error.message) }
+                       );
+        };
+                          
+        var displayFavorites = function(tx, results) {
+            
+            var len = results.rows.length,
+                row,
+                favorites = new Array();
+            
+            for (var i = 0; i < len; i++)
+            {
+                row = results.rows.item(i);
+                favorites.push(row.guid);
+            }
+            
+            if (favorites.length > 0)
+            {
+                $('#saved-vendors-list').kendoMobileListView({
+                              dataSource: kendo.data.DataSource.create({
+                                               transport: {
+                                                   read: { 
+                                                       url: "http://kurogo.appcreatorpro.com/vendors/search",
+                                                       dataType: "json",
+                                                       data: {
+                                                           id: $.toJSON(favorites)
+                                                       }
+                                                    }
+                                               },
+                                               group: "name_alpha"
+                              }),
+                              template: $('#vendors-all-list').html()
+               });
+            }
+        };
+        
+        var getVendorDetails = function(e) {
+            var view = e.view;
+            
+            vendorDetailVM = vendorAlphaDS.get(view.params.id);
+                        
+            kendo.bind($('#vendor-detail-div'), vendorDetailVM);
+            
+        };
+        
+        var addToFavoritesClick = function(e) {            
+            var insertSql,
+                db;
+            
+            db = window.openDatabase("conference", "1.0", "Conference DB", 1000000);
+            
+            db.transaction(function(tx) {
+                               ensureTableExists(tx);
+                               tx.executeSql("DELETE FROM Favorites where guid = '" + vendorDetailVM.id + "'");
+                               insertSql = "INSERT INTO Favorites (guid) VALUES ('" + vendorDetailVM.id + "')";
+                               tx.executeSql(insertSql);
+                           }, function(error) {
+                               console.log("Error: " + error.code + ", " + error.message);
+                           }, function() {
+                               console.log("Success");
+                           });
+            
+            alert("Added to Favorites");
+        };
+        
+        var addToContacts = function(e) {
+            var contact,
+                organization,
+                url;
+            
+            contact = navigator.contacts.create();
+
+            organization = new ContactOrganization();
+            organization.name = vendorDetailVM.name;
+            contact.organizations = new Array(organization);
+            url = new ContactField("work", vendorDetailVM.url, true);
+            contact.urls = new Array(url);
+            
+            contact.save(function() {
+                            alert("Added to contacts");
+                         },
+                         function(error){
+                             alert("Error " + error);
+                         });
+        };
+                  
+        var ensureTableExists = function(tx) {
+            tx.executeSql('CREATE TABLE IF NOT EXISTS Favorites (guid unique)');  
+        };
+        
+    </script>
+  </body>
+</html>
